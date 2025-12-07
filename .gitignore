@@ -1,0 +1,46 @@
+# Python artifacts
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+*.egg
+
+# Virtualenv
+venv/
+.env
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# VSCode
+.vscode/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Logs and temp
+*.log
+tmp/
+*.tmp
+
+# Data / archives / large files (don't commit large zips/datasets)
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+
+# ML model files (you can remove these lines if you want models in repo)
+*.h5
+*.keras
+*.ckpt
+*.pt
+
+# Others
+coverage/
+htmlcov/
+dist/
+build/
+
+# Optional: ignore the local start script output
+*.pid

@@ -2,219 +2,457 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Plant Disease Detector</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PLANT DISEASE DETECTION</title>
+
   <style>
     :root{
-      --bg:#fafafa; --card:#ffffff; --muted:#6b7280; --accent:#0ea5a4; --warn:#b36b00;
+      --accent:#2aa893;
+      --accent-2:#1f8f74;
+      --muted:#6f7b7a;
+      --radius:14px;
+      --maxwidth:1000px;
     }
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial; background:var(--bg); margin:0; padding:24px; color:#111827;}
-    .container{max-width:920px;margin:0 auto;}
-    header{display:flex;align-items:center;gap:16px;margin-bottom:18px;}
-    h1{font-size:20px;margin:0;}
-    .card{background:var(--card);border-radius:12px;padding:18px;box-shadow:0 6px 18px rgba(15,23,42,0.06);margin-bottom:18px;}
-    .u-center{text-align:center}
-    .controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-    input[type=file]{display:none}
-    .btn{background:var(--accent);color:white;border:none;padding:10px 14px;border-radius:8px;cursor:pointer;font-weight:600}
-    .btn.secondary{background:#e6eef0;color:#064e4e}
-    #dropzone{border:2px dashed #e6eef0;padding:18px;border-radius:10px;cursor:pointer;display:flex;align-items:center;gap:12px;justify-content:center}
-    #preview{max-width:300px;max-height:300px;border-radius:8px;object-fit:cover;border:1px solid #e6eef0}
-    .result-list{margin-top:12px}
-    .pred{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid #f3f4f6}
-    .pred:last-child{border-bottom:none}
-    .bar{height:10px;border-radius:999px;background:#e6f7f6;flex:1;overflow:hidden}
-    .bar > i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),#06b6d4)}
-    .small{font-size:13px;color:var(--muted)}
-    .note{padding:8px;border-radius:8px;background:#fff7dd;color:var(--warn);margin-top:12px}
-    .muted{color:var(--muted);font-size:13px}
+
+    html,body{
+      height:100%;
+      margin:0;
+      padding:0;
+      font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
+      color:#ffffff;
+    }
+
+    /* -----------------------------------------
+       BACKGROUND USING YOUR PROVIDED IMAGE
+       Light-medium overlay → background visible
+       ----------------------------------------- */
+    body{
+      background:
+        linear-gradient(rgba(0,0,0,0.18), rgba(0,0,0,0.30)),
+        url("https://img.lovepik.com/photo/50771/6695.jpg_wh860.jpg")
+        center/cover fixed no-repeat;
+      background-blend-mode: darken;
+      padding:28px;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+
+    /* NAVBAR */
+    nav{
+      max-width:var(--maxwidth);
+      margin:0 auto 22px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+    }
+
+    .brand{ display:flex; align-items:center; gap:12px; }
+
+    .leaf{
+      width:44px;
+      height:44px;
+      border-radius:50%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:linear-gradient(135deg,var(--accent),var(--accent-2));
+      box-shadow:0 6px 18px rgba(10,20,20,0.35);
+    }
+    .leaf svg{ width:22px; height:22px; fill:white; }
+
+    .brand h1{
+      margin:0;
+      font-size:20px;
+      font-weight:800;
+      color:#f7fff8;
+      letter-spacing:0.6px;
+    }
+
+    .navlinks{
+      display:flex;
+      gap:14px;
+    }
+    .navlinks a{
+      color:rgba(255,255,255,0.9);
+      text-decoration:none;
+      font-weight:600;
+    }
+    .navlinks a:hover{ text-decoration:underline; }
+
+    /* MAIN CONTENT */
+    .container{ max-width:var(--maxwidth); margin:0 auto; }
+
+    .card{
+      background:rgba(255,255,255,0.10);
+      padding:20px;
+      border-radius:var(--radius);
+      backdrop-filter: blur(6px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+    }
+
+    header h2{ margin:0; font-size:26px; font-weight:800; }
+    header p.lead{ margin:6px 0 0 0; color:#d5dcd9; font-size:14px; }
+
+    /* DROPZONE */
+    #dropzone{
+      margin-top:16px;
+      padding:18px;
+      border-radius:12px;
+      border:2px dashed rgba(255,255,255,0.25);
+      text-align:center;
+      cursor:pointer;
+      transition:all .15s ease;
+    }
+    #dropzone.dragover{
+      border-color:#fff;
+      background:rgba(255,255,255,0.08);
+    }
+    #dropzone strong{
+      display:block;
+      margin-bottom:6px;
+      font-size:16px;
+      font-weight:700;
+    }
+
+    input[type="file"]{ display:none; }
+
+    /* BUTTONS */
+    .controls{
+      margin-top:14px;
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    .btn{
+      padding:10px 16px;
+      border-radius:10px;
+      border:none;
+      cursor:pointer;
+      font-weight:800;
+    }
+    .btn-primary{
+      background:var(--accent);
+      color:#062d24;
+    }
+    .btn-secondary{
+      background:#fff;
+      color:#09332e;
+    }
+    .btn-ghost{
+      background:rgba(255,255,255,0.12);
+      color:white;
+    }
+
+    /* CONTENT GRID */
+    .layout{
+      margin-top:18px;
+      display:grid;
+      grid-template-columns:320px 1fr;
+      gap:20px;
+    }
+    @media(max-width:900px){
+      .layout{ grid-template-columns:1fr; }
+    }
+
+    /* PREVIEW */
+    .preview{
+      height:320px;
+      background:rgba(0,0,0,0.25);
+      border-radius:12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+    }
+    .preview img{
+      max-width:100%;
+      max-height:100%;
+      object-fit:cover;
+    }
+    .empty{ color:#d3d8d6; }
+
+    /* RESULTS */
+    .results{
+      background:rgba(0,0,0,0.28);
+      padding:14px;
+      border-radius:12px;
+    }
+    .status{
+      color:#d3d9d7;
+      margin-bottom:12px;
+      font-weight:700;
+    }
+
+    .pred-list{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+    .pred{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:10px;
+      border-radius:10px;
+      background:rgba(255,255,255,0.07);
+      border:1px solid rgba(255,255,255,0.1);
+    }
+
+    .pred h4{
+      margin:0;
+      font-size:15px;
+      font-weight:800;
+    }
+    .pred small{ color:#bcc6c3; }
+
+    .bar{
+      flex:1;
+      height:12px;
+      border-radius:999px;
+      background:rgba(255,255,255,0.12);
+      overflow:hidden;
+    }
+    /* ensure filler is a block, starts at 0 and transitions */
+.bar > i{
+  display:block;              /* ensure width animates properly */
+  width:0%;
+  height:100%;
+  background:linear-gradient(90deg,var(--accent),var(--accent-2));
+  transition: width 0.8s ease; /* keep the smooth animation */
+  border-radius:999px;
+}
+    .pct{
+      min-width:52px;
+      text-align:right;
+      color:#cbd4d2;
+      font-weight:700;
+    }
+
+    /* SPINNER */
+    .spinner-overlay{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,0.45);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:9999;
+    }
+    .spinner{
+      background:rgba(255,255,255,0.10);
+      padding:18px 22px;
+      border-radius:12px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:10px;
+    }
+    .dot{
+      width:12px; height:12px;
+      border-radius:50%;
+      background:var(--accent);
+      animation:pulse 1s infinite;
+    }
+    .dot:nth-child(2){ animation-delay:.12s; background:var(--accent-2); }
+    .dot:nth-child(3){ animation-delay:.24s; background:#91f0d8; }
+
+    @keyframes pulse{
+      0%{ transform:scale(.6); opacity:.6 }
+      50%{ transform:scale(1); opacity:1 }
+      100%{ transform:scale(.6); opacity:.6 }
+    }
+
   </style>
 </head>
+
 <body>
-  <div class="container">
-    <header>
-      <h1>Plant Disease Detector</h1>
-      <div class="small muted">Upload a leaf image — model predicts disease (top 3)</div>
-    </header>
 
-    <div class="card">
-      <div id="dropzone" tabindex="0">
-        <div>
-          <div style="font-weight:700">Drop an image here or click to choose</div>
-          <div class="small muted">jpeg / png — 1MB recommended (crop to leaf area for best results)</div>
-        </div>
+  <nav>
+    <div class="brand">
+      <div class="leaf" aria-hidden="true">
+        <svg viewBox="0 0 24 24">
+          <path d="M12 2c.5 0 1 .1 1.6.3 2 .7 4.2 2.8 5 5 .3.9.4 1.9.4 2.8 0 2.5-1.5 5-4 7.6S9.4 22 6 22v-4c.4-1.2 2-4.6 2-8C8 8.5 7.6 7 7 5.5 6.5 4.2 9 2 12 2z"/>
+        </svg>
       </div>
-
-      <div style="display:flex;gap:18px;margin-top:12px;align-items:flex-start;flex-wrap:wrap">
-        <div style="min-width:300px">
-          <img id="preview" src="" alt="preview" style="display:none"/>
-        </div>
-
-        <div style="flex:1">
-          <div class="controls">
-            <label class="btn" id="chooseBtn">Choose file
-              <input id="fileInput" type="file" accept="image/*">
-            </label>
-            <button class="btn secondary" id="predictBtn" disabled>Predict</button>
-            <button class="btn" id="clearBtn">Clear</button>
-          </div>
-
-          <div id="status" class="small muted" style="margin-top:12px">No image selected.</div>
-
-          <div id="resultArea" style="margin-top:12px;display:none">
-            <div class="muted">Top predictions</div>
-            <div id="predictions" class="result-list"></div>
-            <div id="note" style="display:none" class="note"></div>
-          </div>
-        </div>
-      </div>
+      <h1>PLANT DISEASE DETECTION</h1>
     </div>
 
-    <div class="card small muted">
-      <div><strong>How to get better results</strong></div>
-      <ol>
-        <li>Crop the photo to the affected leaf area so the leaf fills most of the frame.</li>
-        <li>Use natural light and avoid heavy shadows.</li>
-        <li>Try multiple photos from different angles if unsure.</li>
-      </ol>
+    <div class="navlinks">
+      <a href="#">Home</a>
+      <a href="#">About</a>
+      <a href="#">Docs</a>
+    </div>
+  </nav>
+
+  <main class="container">
+    <section class="card">
+
+      <header>
+        <h2>Upload a leaf image</h2>
+        <p class="lead">The model predicts the top 3 likely plant diseases.</p>
+      </header>
+
+      <div id="dropzone">
+        <strong>Drop image here or click to select</strong>
+        <span style="font-size:13px;color:#d7dfdd;">JPG / PNG recommended</span>
+      </div>
+
+      <div class="controls">
+        <label class="btn btn-primary">
+          Choose file
+          <input type="file" id="fileInput" accept="image/*" />
+        </label>
+
+        <button class="btn btn-secondary" id="predictBtn">Predict</button>
+        <button class="btn btn-ghost" id="clearBtn">Clear</button>
+      </div>
+
+      <div class="layout">
+        <!-- PREVIEW -->
+        <div>
+          <div class="preview" id="preview">
+            <div class="empty">No image selected</div>
+          </div>
+        </div>
+
+        <!-- RESULTS -->
+        <div class="results">
+          <div class="status" id="status">Ready</div>
+          <div class="pred-list" id="predList"></div>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- SPINNER -->
+  <div class="spinner-overlay" id="spinner">
+    <div class="spinner">
+      <strong>Predicting…</strong>
+      <div style="display:flex;gap:8px;">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+      <small style="color:#d3dcd9;">This may take a moment</small>
     </div>
   </div>
 
-  <script>
-    const drop = document.getElementById("dropzone");
-    const fileInput = document.getElementById("fileInput");
-    const chooseBtn = document.getElementById("chooseBtn");
-    const predictBtn = document.getElementById("predictBtn");
-    const clearBtn = document.getElementById("clearBtn");
-    const preview = document.getElementById("preview");
-    const status = document.getElementById("status");
-    const resultArea = document.getElementById("resultArea");
-    const predsDiv = document.getElementById("predictions");
-    const note = document.getElementById("note");
+<script>
+  const API_URL = "http://127.0.0.1:8000/predict";
 
-    let currentFile = null;
+  const fileInput = document.getElementById("fileInput");
+  const predictBtn = document.getElementById("predictBtn");
+  const clearBtn = document.getElementById("clearBtn");
+  const dropzone = document.getElementById("dropzone");
+  const preview = document.getElementById("preview");
+  const statusEl = document.getElementById("status");
+  const predList = document.getElementById("predList");
+  const spinner = document.getElementById("spinner");
 
-    // helpers
-    function humanPct(n){ return (n*100).toFixed(1) + "%"; }
-    function resetUI(){
-      preview.style.display = "none";
-      preview.src = "";
-      status.textContent = "No image selected.";
-      predictBtn.disabled = true;
-      resultArea.style.display = "none";
-      predsDiv.innerHTML = "";
-      note.style.display = "none";
-      currentFile = null;
+  let currentFile = null;
+
+  function showSpinner(show){
+    spinner.style.display = show ? "flex" : "none";
+  }
+
+  function resetUI(){
+    preview.innerHTML = '<div class="empty">No image selected</div>';
+    predList.innerHTML = "";
+    statusEl.textContent = "Ready";
+    currentFile = null;
+    fileInput.value = "";
+  }
+
+  function displayImage(file){
+    const reader = new FileReader();
+    reader.onload = e => {
+      preview.innerHTML = `<img src="${e.target.result}" alt="Leaf">`;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  dropzone.addEventListener("click", ()=> fileInput.click());
+  dropzone.addEventListener("dragover", e=>{
+    e.preventDefault();
+    dropzone.classList.add("dragover");
+  });
+  dropzone.addEventListener("dragleave", ()=> dropzone.classList.remove("dragover"));
+  dropzone.addEventListener("drop", e=>{
+    e.preventDefault();
+    dropzone.classList.remove("dragover");
+    const f = e.dataTransfer.files[0];
+    if(!f) return;
+    currentFile = f;
+    displayImage(f);
+    fileInput.files = e.dataTransfer.files;
+    statusEl.textContent = "Image selected — ready to predict";
+  });
+
+  fileInput.addEventListener("change", ()=>{
+    const f = fileInput.files[0];
+    if(!f) return;
+    currentFile = f;
+    displayImage(f);
+    statusEl.textContent = "Image selected — ready to predict";
+  });
+
+  clearBtn.addEventListener("click", resetUI);
+
+  predictBtn.addEventListener("click", async ()=>{
+    if(!currentFile){
+      statusEl.textContent = "Please upload an image first.";
+      return;
     }
 
-    resetUI();
+    showSpinner(true);
+    statusEl.textContent = "Predicting...";
 
-    // dropzone events
-    drop.addEventListener("click", ()=> fileInput.click());
-    drop.addEventListener("dragover", (e)=>{ e.preventDefault(); drop.style.borderColor = "#06b6d4"; });
-    drop.addEventListener("dragleave", ()=>{ drop.style.borderColor = "#e6eef0"; });
-    drop.addEventListener("drop", (e)=> {
-      e.preventDefault();
-      drop.style.borderColor = "#e6eef0";
-      const f = e.dataTransfer.files && e.dataTransfer.files[0];
-      if(f) handleFile(f);
-    });
+    const fd = new FormData();
+    fd.append("file", currentFile);
 
-    fileInput.addEventListener("change", (e)=>{
-      const f = e.target.files && e.target.files[0];
-      if(f) handleFile(f);
-    });
+    try {
+      const res = await fetch(API_URL, { method:"POST", body:fd });
+      if(!res.ok) throw new Error("Server error");
 
-    function handleFile(file){
-      if(!file) return;
-      if(!file.type.startsWith("image/")){
-        alert("Please select an image file.");
-        return;
-      }
-      currentFile = file;
-      const url = URL.createObjectURL(file);
-      preview.src = url;
-      preview.style.display = "";
-      status.textContent = `Selected: ${file.name} · ${Math.round(file.size/1024)} KB`;
-      predictBtn.disabled = false;
-      resultArea.style.display = "none";
-      predsDiv.innerHTML = "";
-      note.style.display = "none";
+      const data = await res.json();
+
+      predList.innerHTML = "";
+      statusEl.textContent = "Prediction complete";
+
+      data.predictions.slice(0,3).forEach(p=>{
+  const row = document.createElement("div");
+  row.className = "pred";
+  row.innerHTML = `
+    <div class="meta" style="width:38%">
+      <h4 style="margin:0">${p.label}</h4>
+      <small style="color:#c1ccc9">Index: ${p.index}</small>
+    </div>
+    <div class="bar" style="margin:0 12px;"><i></i></div>
+    <div class="pct" style="min-width:52px;text-align:right">${(p.confidence*100).toFixed(1)}%</div>
+  `;
+  predList.appendChild(row);
+
+  const filler = row.querySelector(".bar > i");
+  filler.style.width = "0%";      // start collapsed (important)
+
+  void filler.offsetWidth;        // force reflow
+
+  requestAnimationFrame(() => {
+    filler.style.width = (p.confidence * 100) + "%";   // animate fill
+  });
+});
+
+    } catch(e){
+      statusEl.textContent = "Network or server error";
     }
 
-    clearBtn.addEventListener("click", ()=> {
-      fileInput.value = "";
-      resetUI();
-    });
+    showSpinner(false);
+  });
 
-    // prediction
-    predictBtn.addEventListener("click", async ()=>{
-      if(!currentFile) { alert("Choose an image first"); return; }
-      predictBtn.disabled = true;
-      status.textContent = "Uploading image and waiting for prediction...";
-      predsDiv.innerHTML = "";
-      note.style.display = "none";
+  resetUI();
+</script>
 
-      try{
-        const fd = new FormData();
-        fd.append("file", currentFile);
-
-        // change host/port if your API is elsewhere
-        const url = "http://127.0.0.1:8000/predict?top_k=3";
-
-        const res = await fetch(url, { method: "POST", body: fd });
-        if(!res.ok){
-          const txt = await res.text();
-          status.textContent = "Server error: " + res.status;
-          console.error("Server response:", txt);
-          predictBtn.disabled = false;
-          return;
-        }
-        const data = await res.json();
-
-        if(!data.predictions){
-          status.textContent = "Unexpected response from API";
-          console.log(data);
-          predictBtn.disabled = false;
-          return;
-        }
-
-        // show results
-        resultArea.style.display = "";
-        predsDiv.innerHTML = "";
-
-        data.predictions.forEach(p=>{
-          const row = document.createElement("div");
-          row.className = "pred";
-          const left = document.createElement("div");
-          left.style.minWidth = "220px";
-          left.innerHTML = `<div style="font-weight:700">${p.label}</div><div class="small muted">index: ${p.index}</div>`;
-          const right = document.createElement("div");
-          right.style.width = "40%";
-          right.style.minWidth = "160px";
-          right.innerHTML = `<div class="bar"><i style="width:${Math.max(p.confidence*100,0.5)}%"></i></div><div class="small muted" style="margin-top:6px">${humanPct(p.confidence)}</div>`;
-          row.appendChild(left);
-          row.appendChild(right);
-          predsDiv.appendChild(row);
-        });
-
-        // note for uncertainty
-        const top = data.predictions[0];
-        if(top.confidence < 0.5){
-          note.style.display = "";
-          note.innerHTML = `<b>Model uncertain</b> — top confidence ${humanPct(top.confidence)}. Try cropping the leaf more closely or using another photo.`;
-        } else {
-          note.style.display = "none";
-        }
-
-        status.textContent = "Prediction complete";
-      }catch(err){
-        console.error(err);
-        status.textContent = "Network or server error: " + err.message;
-      } finally {
-        predictBtn.disabled = false;
-      }
-    });
-  </script>
 </body>
 </html>
